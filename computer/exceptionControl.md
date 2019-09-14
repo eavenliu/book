@@ -98,21 +98,21 @@ A0,A1,A2,......,An-1 <br />
 
 处理器提供一个特殊的 **“syscall n”指令** ：当用户程序想要请求服务n时，可以执行这条指令。**执行syscall指令会导致一个异常处理程序的陷阱**，这个处理程序解析参数，并调用适当的内核程序。下图概述了一个**系统调用的过程**：
 
-![image](http://note.youdao.com/yws/res/10359/538C563608DC42738DD917B5607CCACF)
+![trap](/Users/liujie/Desktop/gitbook/image/computer/trap.png)
 
 ### 故障
 **故障时程序运行过程中由错误情况引起的，它是有可能被错误处理程序修正。**
 
 **简单说就是错误可以被修正就可以返回程序继续执行，不能被修复就终止程序**。故障处理的流程如下图：
 
-![image](http://note.youdao.com/yws/res/10376/A31BC6C9817C402B99525A3F453B7432)
+![fault](/Users/liujie/Desktop/gitbook/image/computer/fault.png)
 
 经典的故障例子是：**缺页异常**，当指令引用一个虚拟地址，而与该地址相对应的物理页面不在内存中，因此必须从磁盘中取出时，就会发生故障。故障处理流程就会从磁盘中加载适当的页面（页面会在后面详细分析，一个页面就是虚拟内存一个连续的块，典型的是4kb），然后将控制返回给引起故障的指令。指令继续执行时对应的物理页面已经在内存中了，程序正常运行。
 
 ### 终止
 终止是不可恢复的致命错误造成的后果，通常是硬件错误，终止处理程序直接终止，从不将控制返回给应用程序。
 
-![image](http://note.youdao.com/yws/res/10402/1112C8A2A18C41F6B5ECB898185AD7AB)
+![aboart](/Users/liujie/Desktop/gitbook/image/computer/aboart.png)
 
 ## Linux/x86-64系统中的异常
 这里通过我们最常用的服务器操作系统来展示具体的异常。x86-64系统有高达256种不同的异常类型。0~31对应的是Intel架构师定义的异常，对任何x86-64系统通用；32~255对应的是操作系统定义的中断和陷阱。
@@ -177,15 +177,15 @@ syscall     执行系统调用
 - 一个私有的地址空间：它提供了一个假象，好像我们的程序独占地使用内存系统。
 
 ## 逻辑控制流
-程序计数器（PC）值得序列叫做逻辑控制流，简称逻辑流。（这些值唯一对应与包含在程序的可执行目标文件中的指令，或是包含在运行时动态链接到程序的共享对象中的指令）
+程序计数器（PC）值的序列叫做逻辑控制流，简称逻辑流。（这些值唯一对应与包含在程序的可执行目标文件中的指令，或是包含在运行时动态链接到程序的共享对象中的指令）
 
 **为什么会说是一个独立的逻辑控制流？**
 
 如一个系统运行着三个进程，那么处理器的物理控制流就会被分成三个逻辑流，每个进程一个：
 
-![image](http://note.youdao.com/yws/res/10507/98B0ACF0DBD54F73992FEF4D39FDC961)
+![logicFlow](/Users/liujie/Desktop/gitbook/image/computer/logicFlow.png)
 
-上面的例子可以看到进程是轮流使用处理器的，每个进程执行它的逻辑流的一部分，然后被抢占（preempted）进入暂时挂起状态，然后轮到其他进程（抢占式控制分配是绝大多数系统默认的）。对于一个云想在这些进程之一的上下文的程序，进程的切换对它是透明的，它看上去就像是在独占地使用处理器。
+上面的例子可以看到进程是轮流使用处理器的，每个进程执行它的逻辑流的一部分，然后被抢占（preempted）进入暂时挂起状态，然后轮到其他进程（抢占式控制分配是绝大多数系统默认的）。对于一个运行在这些进程之一的上下文的程序，进程的切换对它是透明的，它看上去就像是在独占地使用处理器。
 
 **逻辑流都有哪些存在形式呢？**
 异常处理程序、进程、信号处理程序、线程和Java进程都是逻辑流的例子。
@@ -218,11 +218,8 @@ syscall     执行系统调用
 **进程由用户模式变为内核模式的唯一方法就是通过中断、故障或者陷入系统调用这样的异常。**
 
 进程运行模式切换：
-```
-sequenceDiagram
-用户模式->>内核模式: 异常发生，控制传递到异常处理程序，处理器将用户模式变为内核模式
-内核模式->>用户模式: 异常处理执行完毕返回应用程序代码，处理器将内核模式变为用户模式
-```
+
+![runModeChange](/Users/liujie/Desktop/gitbook/image/computer/runModeChange.png)
 
 频繁的模式切换会导致性能降低，特别是用户模式的进程只需要访问内核数据结构的内容时，Linux提供了一种优化机制，/proc文件系统将许多内核数据结构的内容输出为一个用户程序可以读的文本文件的层次结构。2.6版本的Linux内核引入/sys文件系统，输出关于系统总线和设备的额外的低层信息。
 
@@ -253,9 +250,9 @@ sequenceDiagram
 
 下图是一个I/O读数据进程切换流程：
 
-![image](http://note.youdao.com/yws/res/10687/44855DC68F574849B3A4AB2400E96233)
 
-# 系统调用错误处理
+
+# ![processChange](/Users/liujie/Desktop/gitbook/image/computer/processChange.png)调用错误处理
 当Unix系统级函数遇到错误时，它们通常会返回-1，并设置全局整数变量errno来表示什么出错了。
 
 # 进程控制管理
@@ -464,11 +461,11 @@ execve函数加载并运行可执行文件filename，且带参数argv和环境�
 
 参数列表的组织结构，argv指向一个以null结尾的指针数组，且**argv[0]惯例保存filename**：
 
-![image](http://note.youdao.com/yws/res/10971/C62EC220F69D4D25A8C2B6C675EB6980)
+![execve1](/Users/liujie/Desktop/gitbook/image/computer/execve1.png)
 
 环境变量列表的组织结构，envp指向一个以null结尾的指针数组：
 
-![image](http://note.youdao.com/yws/res/10975/F793FF43AAD74CF0B5218F2B1E3B4CE8)
+![execve2](/Users/liujie/Desktop/gitbook/image/computer/execve2.png)
 
 execve成功加载filename之后，它会调用链接阶段的启动代码，将控制传递给新程序的主函数。运行的新的程序依然是基于之前的进程，即PID不会改变，但会覆盖当前进程的地址空间并继承调用execve函数时已打开的所有文件描述符。
 
@@ -628,7 +625,7 @@ int parseline(char *buf, char **argv)
 
 **进程可以忽略这个信号，终止或通过执行一个称为信号处理程序的用户层函数来捕获这个信号**。下面是具体信号处理流程：
 
-![image](http://note.youdao.com/yws/res/11086/4A81DC52BDCD45E880BEF9A5496C79E8)
+![reciveSign](/Users/liujie/Desktop/gitbook/image/computer/reciveSign.png)
 
 ### 信号的状态
 - **待处理信号（pending signal）：一个发出而没有被接收的信号**。在任何时刻，一种信号类型至多只会有一个待处理信号，多出来的同一类型信号只会被丢弃。内核为每个进程在pending位向量中维护着待处理信号的集合。
@@ -677,7 +674,7 @@ int setpgid(pid_t pid, pid_t pgid);
 ```
 **这个命令其实会创建一个由两个进程组成的前台作业，这两个进程通过Unix管道连接起来：一个运行ls程序，一个运行sort程序**。shell会为每个作业都创建一个独立的进程组，进程组的ID通常会取自作业中父进程中的一个的PID。
 
-![image](http://note.youdao.com/yws/res/11148/3661062BF66D44FDBAE4CB5DF3094830)
+![processGroup](/Users/liujie/Desktop/gitbook/image/computer/processGroup.png)
 
 ### 4.用kill函数发送信号
 **进程通过调用kill函数发送信号给其他进程（包括自己）。**
@@ -725,7 +722,7 @@ unsigned int alarm(unsigned int secs);
 ```
 typedef void (*sighandler_t)(int);
 sighandler_t signal(int signum, sighandler_t handler);
-返回：若成功则为指向前次处理程序的指针，出粗返回SIG_ERR（不设置errno）
+返回：若成功则为指向前次处理程序的指针，出错返回SIG_ERR（不设置errno）
 ```
 
 **调用信号处理程序称为捕获信号，执行信号处理程序称为处理信号。** 处理程序一般使用“return 0；”将控制传递回控制流中进程被信号接收中断位置处的指令。
@@ -757,7 +754,7 @@ int main()
 
 信号处理程序可以被其他信号处理程序中断
 
-![image](http://note.youdao.com/yws/res/11206/CE62A32F9122443E860DDF7C656BB2E2)
+![signProcess](/Users/liujie/Desktop/gitbook/image/computer/signProcess.png)
 
 ## 阻塞和解除阻塞信号
 Linux提供阻塞信号的显式和隐式机制。
@@ -769,7 +766,7 @@ Linux提供阻塞信号的显式和隐式机制。
 应用程序可以使用sigprocmask函数和它的辅助函数，明确的阻塞和接触阻塞选定的信号。
 
 ## 如何编写好的信号处理程序
-信号处理是Linuc系统编程最棘手的一个问题。需要考虑：
+信号处理是Linux系统编程最棘手的一个问题。需要考虑：
 - 处理程序与主程序并发运行，共享同样的全局变量，因此可能与主程序和其他处理程序互相干扰；
 - 如何以及何时接收信号的规则常常有违人的直觉；
 - 不同的系统有不同的信号语义。
