@@ -32,6 +32,7 @@
   * [kafka+flink+druid_superset搭建](bigdata/use-simple.md)
 * [系统演进设计]()
 * [Java Core]()
+  * [线程池深入剖析](javaCore/ThreadPoolExecutor.md)
 * [系统优化](systemoptimization/systemoptimization.md)
   * [Linux Page Cache和pdflush](systemoptimization/pageCacheAndPdflush.md)
   * [高性能的数据传输-提升TCP性能](systemoptimization/TCPPerformance.md)
