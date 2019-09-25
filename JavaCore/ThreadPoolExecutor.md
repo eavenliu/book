@@ -17,7 +17,7 @@ Java中的线程池适用场景广泛，几乎所有需要异步或并发执行�
 ## 类图结构
 当前JDK版本为1.8，以下是ThreadPoolExecutor的继承情况
 
-![image](http://note.youdao.com/yws/res/143133/4C120A82DED64EC9A769324FD280C90A)
+![threadpool](https://github.com/eavenliu/book/blob/master/image/javacore/threadpool.png)
 
 ### Executor-线程池顶级接口类
 Executor接口只拥有一个方法：
